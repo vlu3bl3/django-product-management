@@ -1,0 +1,96 @@
+
+{% extends "products/base.html" %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+
+        <div class="auth-side">
+            <div class="auth-logo">Shopify</div>
+
+            <div class="auth-illustration">
+                <span>🔐</span>
+            </div>
+
+            <h2>Welcome Back!</h2>
+
+            <p>
+                Sign in to your account to manage your
+                profile and enjoy your shopping experience.
+            </p>
+
+            <ul class="auth-benefits">
+                <li>✓ &nbsp; Access your account securely</li>
+                <li>✓ &nbsp; Manage your products</li>
+                <li>✓ &nbsp; Enjoy a personalized experience</li>
+            </ul>
+        </div>
+
+        <div class="auth-form-side">
+            <h1>Welcome Back</h1>
+
+            <p class="auth-subtitle">
+                Enter your username and password to continue.
+            </p>
+
+            {% if form.errors %}
+                <div class="form-error">
+                    Username or password is incorrect.
+                    Please try again.
+                </div>
+            {% endif %}
+
+            {% if next %}
+                {% if user.is_authenticated %}
+                    <div class="form-error">
+                        Your account doesn't have access to this page.
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">
+                        Username
+                    </label>
+
+                    {{ form.username }}
+
+                    {% for error in form.username.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">
+                        Password
+                    </label>
+
+                    {{ form.password }}
+
+                    {% for error in form.password.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <button type="submit" class="auth-button">
+                    Login
+                </button>
+            </form>
+
+            <p class="auth-footer-text">
+                Don't have an account?
+                <a href="{% url 'register' %}">Create account</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+
+{% extends "products/base.html" %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+    <h1>Our Products</h1>
+
+    <div class="product-grid">
+        {% for product in products %}
+            <div class="product-card">
+                {% if user.is_authenticated %}
+                    <h2>
+                        <a href="{% url 'product_detail' product.id %}">
+                            {{ product.name }}
+                        </a>
+                    </h2>
+                {% endif %}
+            
+                {% if user.is_authenticated %}
+                    <a class="product-link"
+                    href="{% url 'product_update' product.id %}">
+                    Edit Product
+                    </a>
+                {% endif %}
+            
+                {% if user.is_authenticated %}
+                    <a class="product-link"
+                        href="{% url 'product_delete' product.id %}">
+                        Delete Product
+                    </a>
+                {% endif %}
+
+             
+                <p class="product-price">
+                    ${{ product.price }}
+                </p>
+
+                <p class="product-stock">
+                    Stock: {{ product.stock }}
+                </p>
+
+                {% if user.is_authenticated %}
+                    <a class="product-link"
+                    href="{% url 'product_detail' product.id %}">
+                        View Details →
+                    </a>
+                {% endif %}
+            
+            {% if product.category %} 
+                <p> 
+                Category:
+                <a class="category-link" href="{% url 'category_products' product.category.id %}">
+                    {{ product.category.name }}
+                </a>
+            </p>
+{% else %}
+    <p>No category assigned</p>
+{% endif %}
+            </div>
+        {% empty %}
+            <p>No products available yet.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

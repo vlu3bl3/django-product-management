@@ -1,0 +1,76 @@
+
+{% extends "products/base.html" %}
+{% load static %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+
+        <div class="auth-side">
+            <div class="auth-logo">Shopify</div>
+
+            <div class="auth-illustration">
+                <span>🛍️</span>
+            </div>
+
+            <h2>Join Our Community</h2>
+
+            <p>
+                Create your account and enjoy a better
+                shopping experience with us.
+            </p>
+
+            <ul class="auth-benefits">
+                <li>✓ &nbsp; Fast and easy checkout</li>
+                <li>✓ &nbsp; Track your products</li>
+                <li>✓ &nbsp; A personalized experience</li>
+            </ul>
+        </div>
+
+        <div class="auth-form-side">
+            <h1>Create Account</h1>
+            <p class="auth-subtitle">
+                Fill in your details to get started.
+            </p>
+
+            <form method="POST" class="auth-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-error">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <div class="field-error">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="auth-button">
+                    Create Account
+                </button>
+            </form>
+
+            <p class="auth-footer-text">
+                Already have an account?
+                <a href="{% url 'login' %}">Login</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Shop{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'products/style.css' %}">
+</head>
+<body>
+
+    <header>
+        <h1>My Online Shop</h1>
+        <nav>
+
+            <div class="auth-nav">
+                {% if user.is_authenticated %}
+                    <span class="welcome-user">
+                        Hi, {{ user.username }}!
+                    </span>
+            
+                    <form method="POST" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-button">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </div>
+            
+        </nav>
+    </header>
+
+    <hr>
+    <main>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <hr>
+
+    <footer>
+        <p>My Shop - 2026</p>
+    </footer>
+
+</body>
+</html>
