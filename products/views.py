@@ -3,19 +3,22 @@ from django.contrib import messages
 from .models import Product,Category
 from django.http import Http404
 from .forms import ProductForm,Registerform
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 
 
 def test_404(request):
     raise Http404("Product not found")
 
 @login_required
+@user_passes_test(lambda user: user.is_staff)
 def product_create(request):
     if request.method == "POST":
         form = ProductForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            product = form.save(commit=False)
+            product.owner = request.user
+            product.save()
             messages.success(request,"product created succesfully")
             return redirect("products")
 
@@ -28,8 +31,9 @@ def product_create(request):
     })
 
 @login_required
+@user_passes_test(lambda user: user.is_staff)
 def product_update(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, id=product_id,owner=request.user)
 
     if request.method == "POST":
         form = ProductForm(
@@ -53,8 +57,9 @@ def product_update(request, product_id):
     })
 
 @login_required
+@user_passes_test(lambda user: user.is_staff)
 def product_delete(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, id=product_id, owner=request.user)
 
     if request.method == "POST":
         product.delete()
@@ -76,7 +81,7 @@ def products(request):
 
 @login_required
 def product_detail(request, product_id):
-    product = get_object_or_404(Product,id=product_id)
+    product = get_object_or_404(Product,id=product_id,)
 
     context = {
         "product": product
