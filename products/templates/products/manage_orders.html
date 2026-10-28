@@ -1,0 +1,110 @@
+
+{% extends "products/base.html" %}
+
+{% block content %}
+<div class="manage-orders-page">
+
+    <div class="manage-orders-header">
+        <div>
+            <span class="manage-eyebrow">ADMIN PANEL</span>
+            <h1>Manage Orders</h1>
+            <p>Review orders and update their status.</p>
+        </div>
+
+        <a href="{% url 'products' %}" class="manage-back-link">
+            ← Back to Shop
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="manage-message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if orders %}
+        <div class="manage-orders-list">
+            {% for order in orders %}
+                <section class="manage-order-card">
+
+                    <div class="manage-order-top">
+                        <div>
+                            <span class="manage-order-number">
+                                ORDER #{{ order.id }}
+                            </span>
+                            <h2>{{ order.product.name }}</h2>
+                        </div>
+
+                        <span class="order-status status-{{ order.status }}">
+                            <span class="status-dot"></span>
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="manage-order-details">
+                        <div class="manage-detail">
+                            <span>Customer</span>
+                            <strong>{{ order.customer.username }}</strong>
+                        </div>
+
+                        <div class="manage-detail">
+                            <span>Quantity</span>
+                            <strong>{{ order.quantity }}</strong>
+                        </div>
+
+                        <div class="manage-detail">
+                            <span>Unit Price</span>
+                            <strong>{{ order.price_at_purchase|floatformat:2 }}</strong>
+                        </div>
+
+                        <div class="manage-detail">
+                            <span>Order Date</span>
+                            <strong>{{ order.created_at|date:"Y-m-d H:i" }}</strong>
+                        </div>
+                    </div>
+
+                    <form
+                        method="post"
+                        action="{% url 'update_order_status' order.id %}"
+                        class="manage-status-form"
+                    >
+                        {% csrf_token %}
+
+                        <label for="status-{{ order.id }}">
+                            Update status
+                        </label>
+
+                        <select
+                            name="status"
+                            id="status-{{ order.id }}"
+                        >
+                            {% for value, label in order.STATUS_CHOICES %}
+                                <option
+                                    value="{{ value }}"
+                                    {% if order.status == value %}selected{% endif %}
+                                >
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="submit" class="manage-update-button">
+                            Update Status
+                        </button>
+                    </form>
+
+                </section>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="manage-orders-empty">
+            <div class="manage-empty-icon">📦</div>
+            <h2>No orders yet</h2>
+            <p>New customer orders will appear here.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+
+{% extends "products/base.html" %}
+{% load static %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert-message {{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="purchase-page">
+    <div class="purchase-card">
+
+        <div class="purchase-header">
+            <span class="purchase-icon">🛒</span>
+            <h1>Confirm Your Purchase</h1>
+            <p>Review your product before continuing.</p>
+        </div>
+
+        <div class="purchase-product">
+            <div class="purchase-product-info">
+                <span class="purchase-label">PRODUCT</span>
+                <h2>{{ product.name }}</h2>
+                <p class="purchase-stock">
+                    {% if product.stock > 0 %}
+                        <span class="stock-dot"></span>
+                        {{ product.stock }} available in stock
+                    {% else %}
+                        <span class="stock-dot out-of-stock"></span>
+                        Currently out of stock
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="purchase-price">
+                <span class="purchase-label">PRICE</span>
+                <strong>{{ product.price }}</strong>
+            </div>
+        </div>
+
+        {% if product.stock > 0 %}
+            <form method="post" class="purchase-actions">
+                {% csrf_token %}
+                <button type="submit" class="purchase-button">
+                    Confirm Purchase →
+                </button>
+
+                <a href="{% url 'product_buy' product.id %}"
+                   class="purchase-back">
+                    Back to Details
+                </a>
+            </form>
+        {% else %}
+            <div class="purchase-unavailable">
+                This product is currently unavailable.
+            </div>
+
+            <a href="{% url 'product_detail' product.id %}"
+               class="purchase-back">
+                ← Back to Details
+            </a>
+        {% endif %}
+
+        <p class="purchase-note">
+            Secure checkout · Your order will be confirmed in the next step.
+        </p>
+
+    </div>
+</div>
+{% endblock %}

@@ -40,12 +40,15 @@
                     Stock: {{ product.stock }}
                 </p>
 
-                {% if user.is_authenticated  %}
-                    <a class="product-link"
-                    href="{% url 'product_detail' product.id %}">
-                        View Details →
-                    </a>
-                {% endif %}
+                <a class="product-link"
+                href="{% url 'product_detail' product.id %}">
+                 View Details →
+             </a>
+             
+             <a class="product-link"
+                href="{% url 'product_buy' product.id %}">
+                 Buy 🛒
+             </a>
             
             {% if product.category %} 
                 <p> 

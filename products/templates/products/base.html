@@ -13,6 +13,7 @@
         <nav>
 
             <div class="auth-nav">
+                <a href="{% url 'products' %}">products</a>
                 {% if user.is_authenticated %}
                     <span class="welcome-user">
                         Hi, {{ user.username }}!

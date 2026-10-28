@@ -1,10 +1,10 @@
-from django.shortcuts import render,get_object_or_404,redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from .models import Product,Category
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db import transaction
+from .models import Product, Category, Order
 from django.http import Http404
-from .forms import ProductForm,Registerform
-from django.contrib.auth.decorators import login_required,user_passes_test
-
+from .forms import ProductForm, Registerform
 
 def test_404(request):
     raise Http404("Product not found")
@@ -33,7 +33,7 @@ def product_create(request):
 @login_required
 @user_passes_test(lambda user: user.is_staff)
 def product_update(request, product_id):
-    product = get_object_or_404(Product, id=product_id,owner=request.user)
+    product = get_object_or_404(Product, id=product_id)
 
     if request.method == "POST":
         form = ProductForm(
@@ -59,7 +59,7 @@ def product_update(request, product_id):
 @login_required
 @user_passes_test(lambda user: user.is_staff)
 def product_delete(request, product_id):
-    product = get_object_or_404(Product, id=product_id, owner=request.user)
+    product = get_object_or_404(Product, id=product_id,)
 
     if request.method == "POST":
         product.delete()
@@ -88,6 +88,38 @@ def product_detail(request, product_id):
     }
 
     return render(request, "products/products_details.html", context)
+
+@login_required
+def product_buy(request,product_id):
+    if  request.method !="POST":
+        product=get_object_or_404(Product,id=product_id)
+        return render(request,
+        "products/product_buy.html",
+        {"product" : product}
+        )
+    
+    with transaction.atomic():
+        product = get_object_or_404(
+            Product.objects.select_for_update(),
+            id=product_id,
+        )   
+    
+    if product.stock < 1:
+        messages.error(request,"out of stock")
+        return redirect("product_buy",product_id=product.id)
+
+    Order.objects.create(
+        customer=request.user,
+        product=product,
+        quantity=1,
+        price_at_purchase=product.price,
+    )
+    product.stock -= 1
+    product.save(update_fields=["stock"])
+
+    messages.success(request,"bought sucessfully")
+    return redirect("product_detail",product_id=product.id)
+
 
 def category_products(request,category_id):
     category = get_object_or_404(Category,id=category_id)
@@ -122,3 +154,56 @@ def register_view(request):
         "products/register.html",
         {"form":form}
     )
+
+
+@login_required
+def my_orders(request):
+    orders=(
+        Order.objects
+        .filter(customer=request.user)
+        .select_related("product")
+        .order_by("-created_at")
+    )
+    return render(
+        request,
+        "products/my_orders.html",
+        {"orders":orders},
+    )
+
+@login_required
+@user_passes_test(lambda user:user.is_staff)
+def manage_orders(request):
+    orders=(
+        Order.objects.
+        select_related("customer","product").
+        order_by("-created_at")
+    )
+    return render(
+        request,
+        "products/manage_orders.html",
+        {"orders":orders}
+    )
+
+@login_required
+@user_passes_test(lambda user:user.is_staff)
+def update_order_status(request,order_id):
+    if request.method!="POST":
+        return redirect("manage_orders")
+
+    order=get_object_or_404(Order,id=order_id)
+    new_status=request.POST.get("status")
+
+    valid_statuses=dict(Order.STATUS_CHOICES)
+
+    if new_status not in valid_statuses:
+        messages.error(request,"status is not valid")
+        return redirect("manage_orders")
+    
+    order.status=new_status
+    order.save(update_fields=["status"])
+
+    messages.success(
+        request,
+        f"order #{order.id} status successfully updated"
+    )
+    return redirect("manage_orders")

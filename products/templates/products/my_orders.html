@@ -1,0 +1,99 @@
+
+{% extends "products/base.html" %}
+
+{% block content %}
+<div class="orders-page">
+
+    <div class="orders-header">
+        <div>
+            <span class="orders-eyebrow">YOUR ACCOUNT</span>
+            <h1>My Orders</h1>
+            <p>Track and review your purchases.</p>
+        </div>
+
+        <a href="{% url 'products' %}" class="orders-back">
+            ← Continue Shopping
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="orders-message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if orders %}
+        <div class="orders-summary">
+            <div>
+                <span class="summary-label">TOTAL ORDERS</span>
+                <strong>{{ orders|length }}</strong>
+            </div>
+            <span class="summary-icon">📦</span>
+        </div>
+
+        <div class="orders-list">
+            {% for order in orders %}
+                <article class="order-card">
+
+                    <div class="order-top">
+                        <span class="order-number">
+                            ORDER #{{ order.id }}
+                        </span>
+                        <span class="order-status status-{{ order.status }}">
+                            <span class="status-dot"></span>
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="order-content">
+                        <div class="order-product-icon">🛍️</div>
+
+                        <div class="order-product-info">
+                            <h2>{{ order.product.name }}</h2>
+                            <p>
+                                Placed on
+                                {{ order.created_at|date:"M d, Y · H:i" }}
+                            </p>
+                            <span class="order-quantity">
+                                Quantity: {{ order.quantity }}
+                            </span>
+                        </div>
+
+                        <div class="order-price">
+                            <span>PRICE</span>
+                            <strong>
+                                {{ order.price_at_purchase|floatformat:2 }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="order-bottom">
+                        <span>Thank you for your purchase!</span>
+
+                        <a href="{% url 'product_detail' order.product.id %}">
+                            View Product →
+                        </a>
+                    </div>
+
+                </article>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="orders-empty">
+            <div class="empty-icon">🛒</div>
+            <h2>No orders yet</h2>
+            <p>
+                You haven't placed any orders yet.
+                Explore our products and find something you love.
+            </p>
+            <a href="{% url 'products' %}" class="orders-shop-button">
+                Explore Products →
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
