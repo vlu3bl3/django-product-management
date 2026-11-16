@@ -24,7 +24,7 @@ urlpatterns = [
     name="logout",
 ),
     path("products/<int:product_id>/buy",views.product_buy,name="product_buy"),
-    path("my-orders",views.my_orders,name="my_orders"),
-    path("manage-orders",views.manage_orders,name="manage_orders"),
+    path("my-orders/",views.my_orders,name="my_orders"),
+    path("manage-orders/",views.manage_orders,name="manage_orders"),
     path("manage-orders/<int:order_id>",views.update_order_status,name="update_order_status")
 ]
